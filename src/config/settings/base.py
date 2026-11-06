@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "apps.users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,8 @@ DATABASES = {
         "CONN_HEALTH_CHECKS": True,
     }
 }
+
+AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
