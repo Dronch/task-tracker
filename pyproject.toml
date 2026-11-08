@@ -38,7 +38,10 @@ addopts = ["--strict-markers", "-ra"]
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["src/**/migrations/*.py"]
+omit = [
+    "src/**/migrations/*.py",
+    "src/apps/tasks/management/commands/demo.py",
+]
 
 [tool.coverage.report]
 skip_covered = true
