@@ -1,6 +1,7 @@
 from typing import ClassVar
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from simple_history.models import HistoricalRecords
 
@@ -80,6 +81,27 @@ class Task(TimeStampedSoftDeleteModel):
     def __str__(self) -> str:
         return self.title
 
+    def clean(self) -> None:
+        super().clean()
+
+        if not self.title.strip():
+            raise ValidationError({"title": "Title cannot be blank."})
+
+        completion_fields_are_consistent = (self.completed_at is None) == (
+            self.completed_by_id is None
+        )
+        if not completion_fields_are_consistent:
+            raise ValidationError(
+                {
+                    "completed_at": (
+                        "completed_at and completed_by must be set or cleared together."
+                    ),
+                    "completed_by": (
+                        "completed_at and completed_by must be set or cleared together."
+                    ),
+                }
+            )
+
 
 class Comment(TimeStampedSoftDeleteModel):
     task = models.ForeignKey(
@@ -109,3 +131,9 @@ class Comment(TimeStampedSoftDeleteModel):
 
     def __str__(self) -> str:
         return f"Comment {self.pk} on task {self.task_id}"
+
+    def clean(self) -> None:
+        super().clean()
+
+        if not self.body.strip():
+            raise ValidationError({"body": "Comment body cannot be blank."})

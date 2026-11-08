@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Comment, Task
+from apps.tasks.models import Comment, Task
 
 
 class SoftDeleteHistoryAdmin(SimpleHistoryAdmin):

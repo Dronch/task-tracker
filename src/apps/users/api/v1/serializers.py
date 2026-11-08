@@ -3,6 +3,15 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.users.models import User
+
+
+class UserSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username")
+        read_only_fields = fields
+
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(write_only=True)

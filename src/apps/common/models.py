@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 from django.db import models
 from django.utils import timezone
 
-from .managers import AllObjectsManager, SoftDeleteManager
+from apps.common.managers import AllObjectsManager, SoftDeleteManager
 
 if TYPE_CHECKING:
     from django.contrib.auth.base_user import AbstractBaseUser
