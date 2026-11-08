@@ -1,7 +1,11 @@
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
+from rest_framework.filters import BaseFilterBackend
+from rest_framework.request import Request
+from rest_framework.views import APIView
 
 from apps.tasks.models import Task
+from apps.tasks.selectors import search_tasks
 
 
 class TaskFilter(filters.FilterSet):
@@ -32,3 +36,18 @@ class TaskFilter(filters.FilterSet):
         if value is None:
             return queryset
         return queryset.filter(completed_at__isnull=not value)
+
+
+class TaskSearchFilterBackend(BaseFilterBackend):
+    search_param = "search"
+
+    def filter_queryset(
+        self,
+        request: Request,
+        queryset: QuerySet[Task],
+        _view: APIView,
+    ) -> QuerySet[Task]:
+        value = request.query_params.get(self.search_param, "").strip()
+        if not value:
+            return queryset
+        return search_tasks(queryset, value)

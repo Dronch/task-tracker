@@ -1,11 +1,13 @@
 from typing import ClassVar
 
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from simple_history.models import HistoricalRecords
 
 from apps.common.models import TimeStampedSoftDeleteModel
+from apps.tasks.search import TASK_SEARCH_VECTOR
 
 
 class Task(TimeStampedSoftDeleteModel):
@@ -75,6 +77,10 @@ class Task(TimeStampedSoftDeleteModel):
                     due_date__isnull=False,
                 ),
                 name="tasks_active_due_idx",
+            ),
+            GinIndex(
+                TASK_SEARCH_VECTOR,
+                name="tasks_search_vector_gin_idx",
             ),
         ]
 

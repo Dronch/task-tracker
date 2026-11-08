@@ -8,14 +8,18 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.tasks.api.v1.serializers import CommentSerializer, TaskSerializer
-from apps.tasks.filters import TaskFilter
+from apps.tasks.filters import TaskFilter, TaskSearchFilterBackend
 from apps.tasks.models import Comment, Task
 from apps.tasks.services import complete_task, reopen_task
 
 
 class TaskViewSet(ModelViewSet):
     serializer_class = TaskSerializer
-    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    filter_backends = (
+        DjangoFilterBackend,
+        OrderingFilter,
+        TaskSearchFilterBackend,
+    )
     filterset_class = TaskFilter
     ordering_fields = ("created_at", "updated_at", "due_date", "priority")
     ordering = ("-created_at",)
