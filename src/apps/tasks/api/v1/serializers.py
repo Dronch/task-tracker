@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from apps.tasks.models import Comment, Task
@@ -43,6 +45,17 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Title cannot be blank.")
         return value
 
+    def create(self, validated_data: dict[str, Any]) -> Task:
+        history_user = validated_data.pop("_history_user", None)
+        task = Task(**validated_data)
+        task._history_user = history_user
+        task.save()
+        return task
+
+    def update(self, instance: Task, validated_data: dict[str, Any]) -> Task:
+        instance._history_user = validated_data.pop("_history_user", None)
+        return super().update(instance, validated_data)
+
 
 class CommentSerializer(serializers.ModelSerializer):
     task = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -73,3 +86,14 @@ class CommentSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Comment body cannot be blank.")
         return value
+
+    def create(self, validated_data: dict[str, Any]) -> Comment:
+        history_user = validated_data.pop("_history_user", None)
+        comment = Comment(**validated_data)
+        comment._history_user = history_user
+        comment.save()
+        return comment
+
+    def update(self, instance: Comment, validated_data: dict[str, Any]) -> Comment:
+        instance._history_user = validated_data.pop("_history_user", None)
+        return super().update(instance, validated_data)
