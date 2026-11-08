@@ -4,7 +4,7 @@ MANAGE = $(COMPOSE) run --rm web python src/manage.py
 .PHONY: \
 	init sync hooks \
 	up down build logs ps \
-	migrate migrations migrations-check superuser shell manage \
+	migrate migrations migrations-check superuser shell manage demo \
 	format lint pre-commit check schema-check test
 
 init: .env sync hooks
@@ -50,6 +50,9 @@ shell:
 
 manage:
 	$(MANAGE) $(CMD)
+
+demo:
+	$(COMPOSE) exec -T web python src/manage.py demo
 
 format:
 	uv run ruff check --fix .
