@@ -7,8 +7,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from apps.tasks.api.v1.serializers import CommentSerializer, TaskSerializer
+from apps.tasks.api.v1.serializers import (
+    CommentSerializer,
+    TaskHistoryEntrySerializer,
+    TaskSerializer,
+)
 from apps.tasks.filters import TaskFilter, TaskSearchFilterBackend
+from apps.tasks.history import get_task_history
 from apps.tasks.models import Comment, Task
 from apps.tasks.services import complete_task, reopen_task
 
@@ -52,6 +57,12 @@ class TaskViewSet(ModelViewSet):
     def reopen(self, request: Request, pk: str | None = None) -> Response:
         task = reopen_task(task=self.get_object(), reopened_by=request.user)
         return Response(self.get_serializer(task).data)
+
+    @action(detail=True, methods=("get",))
+    def history(self, request: Request, pk: str | None = None) -> Response:
+        entries = get_task_history(self.get_object())
+        serializer = TaskHistoryEntrySerializer(entries, many=True)
+        return Response(serializer.data)
 
 
 class CommentViewSet(ModelViewSet):

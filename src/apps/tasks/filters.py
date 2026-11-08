@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from rest_framework.filters import BaseFilterBackend
@@ -5,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from apps.tasks.models import Task
-from apps.tasks.selectors import search_tasks
+from apps.tasks.querysets import TaskQuerySet
 
 
 class TaskFilter(filters.FilterSet):
@@ -50,4 +52,4 @@ class TaskSearchFilterBackend(BaseFilterBackend):
         value = request.query_params.get(self.search_param, "").strip()
         if not value:
             return queryset
-        return search_tasks(queryset, value)
+        return cast(TaskQuerySet, queryset).search(value)

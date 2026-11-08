@@ -7,6 +7,21 @@ from apps.users.api.v1.fields import ActiveUserRelatedField
 from apps.users.api.v1.serializers import UserSummarySerializer
 
 
+class TaskHistoryChangeSerializer(serializers.Serializer):
+    field = serializers.CharField()
+    old = serializers.JSONField(allow_null=True)
+    new = serializers.JSONField(allow_null=True)
+
+
+class TaskHistoryEntrySerializer(serializers.Serializer):
+    occurred_at = serializers.DateTimeField()
+    actor = UserSummarySerializer(allow_null=True)
+    event = serializers.ChoiceField(
+        choices=("created", "changed", "completed", "reopened", "removed"),
+    )
+    changes = TaskHistoryChangeSerializer(many=True)
+
+
 class TaskSerializer(serializers.ModelSerializer):
     creator = UserSummarySerializer(read_only=True)
     assignee = ActiveUserRelatedField()

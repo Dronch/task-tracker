@@ -7,6 +7,8 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from apps.common.models import TimeStampedSoftDeleteModel
+from apps.tasks.managers import AllTasksManager, TaskHistoryManager, TaskManager
+from apps.tasks.querysets import TaskHistoricalQuerySet
 from apps.tasks.search import TASK_SEARCH_VECTOR
 
 
@@ -55,7 +57,12 @@ class Task(TimeStampedSoftDeleteModel):
         blank=True,
     )
 
-    history = HistoricalRecords()
+    objects = TaskManager()
+    all_objects = AllTasksManager()
+    history = HistoricalRecords(
+        history_manager=TaskHistoryManager,
+        historical_queryset=TaskHistoricalQuerySet,
+    )
 
     class Meta(TimeStampedSoftDeleteModel.Meta):
         indexes: ClassVar[list[models.Index]] = [
