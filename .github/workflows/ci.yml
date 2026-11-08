@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: task_tracker
+          POSTGRES_USER: task_tracker
+          POSTGRES_PASSWORD: task_tracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U task_tracker -d task_tracker"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      DJANGO_SECRET_KEY: ci-only-secret-key
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      POSTGRES_DB: task_tracker
+      POSTGRES_USER: task_tracker
+      POSTGRES_PASSWORD: task_tracker
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5432
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.0"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Run Django system checks
+        run: uv run python src/manage.py check
+
+      - name: Check migrations
+        run: uv run python src/manage.py makemigrations --check --dry-run
+
+      - name: Apply migrations
+        run: uv run python src/manage.py migrate --noinput
+
+      - name: Run tests
+        run: uv run pytest --cov=apps --cov-report=term-missing
+
+      - name: Validate OpenAPI schema
+        run: >-
+          uv run python src/manage.py spectacular
+          --file /tmp/task-tracker-openapi.yaml
+          --validate
+          --fail-on-warn
