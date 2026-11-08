@@ -5,7 +5,7 @@ MANAGE = $(COMPOSE) run --rm web python src/manage.py
 	init sync hooks \
 	up down build logs ps \
 	migrate migrations migrations-check superuser shell manage \
-	format lint pre-commit check
+	format lint pre-commit check schema-check
 
 init: .env sync hooks
 
@@ -64,3 +64,6 @@ pre-commit:
 
 check: lint
 	uv run python src/manage.py check
+
+schema-check:
+	$(MANAGE) spectacular --file /tmp/task-tracker-openapi.yaml --validate --fail-on-warn

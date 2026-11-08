@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.staticfiles",
     "django_filters",
+    "drf_spectacular",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "simple_history",
@@ -85,7 +86,17 @@ REST_FRAMEWORK = {
         "apps.common.permissions.IsAuthenticatedAndWritable",
     ),
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.StandardPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 20,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Task Tracker API",
+    "DESCRIPTION": "REST API for task assignment, completion, comments, and history.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ("rest_framework.permissions.AllowAny",),
+    "SERVE_AUTHENTICATION": (),
 }
 
 SIMPLE_JWT = {

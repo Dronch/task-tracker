@@ -1,6 +1,6 @@
 [project]
 name = "task-tracker"
-version = "0.1.0"
+version = "1.0.0"
 description = "REST API for task management"
 readme = "README.md"
 authors = [
