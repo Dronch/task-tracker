@@ -5,7 +5,7 @@ MANAGE = $(COMPOSE) run --rm web python src/manage.py
 	init sync hooks \
 	up down build logs ps \
 	migrate migrations migrations-check superuser shell manage \
-	format lint pre-commit check schema-check
+	format lint pre-commit check schema-check test
 
 init: .env sync hooks
 
@@ -67,3 +67,6 @@ check: lint
 
 schema-check:
 	$(MANAGE) spectacular --file /tmp/task-tracker-openapi.yaml --validate --fail-on-warn
+
+test:
+	$(COMPOSE) run --rm web sh -c "uv sync --frozen && pytest $(PYTEST_ARGS) --cov=apps --cov-report=term-missing"
